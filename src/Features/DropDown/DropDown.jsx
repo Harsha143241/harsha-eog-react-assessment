@@ -5,25 +5,31 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 import Box from '@material-ui/core/Box';
-
-const dropDown = ["tubingPressure", "injValveOpen", "waterTemp", "flareTemp", "casingPressure", "oilTemp"];
-
-
+import { useQuery, gql} from '@apollo/client';
+import { GET_METRICS } from '../../components/GraphQL/Queries';
 
 const DropDown = () => {
-    const [dropDownValue, setDropDownValue] = useState([]);
+    const { error, loading, data } = useQuery(GET_METRICS)
 
-    useEffect(() => console.log(dropDownValue), [dropDownValue]);
+    const [metrics, SetMetrics] = useState([])
+    const [selectedMetric, setSelectedMetric] = useState([]);
+
+    useEffect(() => console.log(selectedMetric), [selectedMetric]);
+    useEffect(() => { 
+        if (data){
+            SetMetrics(data.getMetrics);
+        }
+    }, [data]);
 
     const onDropDownSelect = (e) => {
         let checkedValue = e.target.value;
-        if (dropDownValue.indexOf(checkedValue) >= 0){
-            const updatedDropDownValue = dropDownValue.filter((item) => {
+        if (selectedMetric.indexOf(checkedValue) >= 0){
+            const updatedSelectedMetric = selectedMetric.filter((item) => {
                 return item !== checkedValue
             });
-            setDropDownValue(updatedDropDownValue);
+            setSelectedMetric(updatedSelectedMetric);
         } else {
-            setDropDownValue([...dropDownValue, checkedValue]);
+            setSelectedMetric([...selectedMetric, checkedValue]);
         }
     } 
 
@@ -33,7 +39,7 @@ const DropDown = () => {
       <FormLabel  component="legend">Select Metrics</FormLabel>
       <FormGroup  aria-label="position" row>
           {
-              dropDown.map((item) => {
+                !loading && metrics.map((item) => {
                 return (
                     <div key = {item}>
                     <FormControlLabel
